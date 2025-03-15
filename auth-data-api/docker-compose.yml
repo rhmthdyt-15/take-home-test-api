@@ -1,0 +1,65 @@
+version: "3.8"
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: auth-data-api_app
+        restart: unless-stopped
+        working_dir: /var/www/auth-data-api
+        command: php artisan octane:start --server=swoole --host=0.0.0.0 --port=8000
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/var/www/auth-data-api
+        networks:
+            - auth-data-api_network
+        depends_on:
+            - mysql
+            - redis
+
+    mysql:
+        image: mysql:8.0
+        container_name: auth-data-api_mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_USER: ${DB_USERNAME}
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - auth-data-api_network
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: auth-data-api_phpmyadmin
+        restart: unless-stopped
+        ports:
+            - "8080:80"
+        environment:
+            PMA_HOST: mysql
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        networks:
+            - auth-data-api_network
+        depends_on:
+            - mysql
+
+    redis:
+        image: redis:alpine
+        container_name: auth-data-api_redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        networks:
+            - auth-data-api_network
+
+networks:
+    auth-data-api_network:
+        driver: bridge
+
+volumes:
+    mysql_data:
