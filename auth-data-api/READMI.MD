@@ -65,10 +65,10 @@ Sebuah implementasi REST API menggunakan Laravel 10, MySQL, dan Docker untuk man
     docker-compose exec app php artisan db:seed --class=UserSeeder
     ```
 
-5. Menjalankan Docker:
+5. Menjalankan Server:
 
     ```bash
-    docker-compose up -d
+    docker-compose up
     ```
 
 6. Akses aplikasi di browser:
